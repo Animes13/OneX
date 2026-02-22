@@ -97,407 +97,250 @@ def build_plugin_url(params):
 
 def getMainMenus(data=None, fanart=None):
     """
-    Monta os menus principais a partir de um JSON ou TXT.
-    Agora decide automaticamente o 'mode' quando não fornecido, inspecionando JSON remoto.
+    ⚡ SUPREME FAST MENU
+    - NÃO baixa JSON antes do clique
+    - NÃO tenta adivinhar mode
+    - NÃO faz requisições desnecessárias
+    - Logs mínimos
+    - Usa apenas mode definido no menu.json
     """
-    xbmc.log("[ADDON-DEBUG] getMainMenus iniciado", xbmc.LOGINFO)
-
-    def _guess_mode_from_json_url(url):
-        """Tenta baixar o JSON e inferir o mode (200=series, 101=filmes/items, None=desconhecido)."""
-        try:
-            if not url or not isinstance(url, str) or not url.startswith("http"):
-                xbmc.log(f"[ADDON-DEBUG] _guess_mode: url inválida ou local: {url}", xbmc.LOGINFO)
-                return None, None
-            xbmc.log(f"[ADDON-DEBUG] _guess_mode: baixando {url}", xbmc.LOGINFO)
-            s = makeRequest(url)
-            j = json.loads(s)
-            # dicionário com chave 'series'
-            if isinstance(j, dict):
-                if "series" in j and isinstance(j["series"], (list, dict)):
-                    xbmc.log("[ADDON-DEBUG] _guess_mode: JSON contém 'series' → mode=200", xbmc.LOGINFO)
-                    return 200, j.get("series")
-                if "items" in j:
-                    xbmc.log("[ADDON-DEBUG] _guess_mode: JSON contém 'items' → mode=101", xbmc.LOGINFO)
-                    return 101, j.get("items")
-                if "menu" in j:
-                    xbmc.log("[ADDON-DEBUG] _guess_mode: JSON contém 'menu' → menu principal (fallback)", xbmc.LOGINFO)
-                    return None, j.get("menu")
-                # detecta lista de media mesmo dentro de dict sem chaves padrão
-                # ex: { "series": [...] } coberto; mas se for { "whatever": [ ... ] } dá fallback
-                return None, j
-            # lista direta
-            if isinstance(j, list) and len(j) > 0:
-                first = j[0]
-                if isinstance(first, dict):
-                    tmdb_type = str(first.get("tmdb_type", "")).lower()
-                    if tmdb_type == "tv":
-                        xbmc.log("[ADDON-DEBUG] _guess_mode: lista com tmdb_type=tv → mode=200", xbmc.LOGINFO)
-                        return 200, j
-                    # se tem chave 'tmdb' e não for tv, assume biblioteca de filmes
-                    if first.get("tmdb") or first.get("tmdb_id"):
-                        xbmc.log("[ADDON-DEBUG] _guess_mode: lista com tmdb → mode=101", xbmc.LOGINFO)
-                        return 101, j
-                # não sabe inferir
-            xbmc.log("[ADDON-DEBUG] _guess_mode: não conseguiu inferir mode", xbmc.LOGINFO)
-            return None, j
-        except Exception as e:
-            xbmc.log(f"[ADDON-ERROR] _guess_mode_from_json_url falhou: {e}", xbmc.LOGERROR)
-            return None, None
 
     try:
         items = []
+
+        # ---------------------------------------------------------
+        # 🔹 CARREGA MENU APENAS UMA VEZ
+        # ---------------------------------------------------------
         if data:
-            xbmc.log("[ADDON-DEBUG] getMainMenus recebeu 'data' diretamente", xbmc.LOGINFO)
             if isinstance(data, dict) and "menu" in data:
                 items = data["menu"]
             elif isinstance(data, list):
                 items = data
             else:
-                xbmc.log("[ADDON-ERROR] Formato inválido em 'data'", xbmc.LOGERROR)
                 return
         else:
             try:
-                xbmc.log(f"[ADDON-DEBUG] Tentando carregar MENU_URL: {MENU_URL}", xbmc.LOGINFO)
-                soup = makeRequest(MENU_URL)
-                j = json.loads(soup)
+                response = makeRequest(MENU_URL)
+                j = json.loads(response)
+
                 if isinstance(j, dict) and "menu" in j:
                     items = j["menu"]
                 elif isinstance(j, list):
                     items = j
                 else:
-                    xbmc.log("[ADDON-ERROR] Estrutura inválida em MENU_URL", xbmc.LOGERROR)
                     return
-            except Exception as e_fallback:
-                xbmc.log(f"[ADDON-ERROR] Falha ao carregar MENU_URL: {e_fallback}", xbmc.LOGERROR)
+            except:
                 return
 
-        xbmc.log(f"[ADDON-DEBUG] getMainMenus encontrou {len(items)} itens", xbmc.LOGINFO)
+        if not items:
+            return
 
-        # tentar importar helpers (não obrigatórios aqui, só log)
-        try:
-            from resources.lib.library_series import buildSeriesLibraryMenus
-        except Exception as e_import:
-            xbmc.log(f"[ADDON-DEBUG] buildSeriesLibraryMenus unavailable: {e_import}", xbmc.LOGWARNING)
-            buildSeriesLibraryMenus = None
-        try:
-            from resources.lib.Menus import buildLibraryMenus_supreme
-        except Exception as e_import2:
-            xbmc.log(f"[ADDON-DEBUG] buildLibraryMenus_supreme unavailable: {e_import2}", xbmc.LOGWARNING)
-            buildLibraryMenus_supreme = None
-
-        for idx, item in enumerate(items, start=1):
+        # ---------------------------------------------------------
+        # 🔹 MONTA MENU SEM NENHUMA VERIFICAÇÃO REMOTA
+        # ---------------------------------------------------------
+        for item in items:
             try:
                 title = item.get("title") or item.get("name") or "Sem título"
-                url = item.get("url") or ""
-                thumb = item.get("icon") or ""
+                url = item.get("url", "")
+                thumb = item.get("icon", "")
                 item_fanart = item.get("fanart") or fanart or FANART
 
-                # tenta obter mode declarado
-                raw_mode = item.get("mode", None)
+                # ⚡ Usa apenas mode definido
                 try:
-                    mode = int(raw_mode) if raw_mode is not None else None
-                except Exception:
-                    mode = None
+                    mode = int(item.get("mode", 100))
+                except:
+                    mode = 100
 
-                xbmc.log(f"[ADDON-DEBUG] Processando item {idx}: '{title}' | url='{url}' | declared_mode={raw_mode}", xbmc.LOGINFO)
+                addDir(
+                    title,
+                    url,
+                    mode,
+                    thumb,
+                    item_fanart,
+                    f"Biblioteca: {title}",
+                    "",
+                    "",
+                    "",
+                    True
+                )
 
-                # se mode já declarado - usa diretamente (respeita o que vier no menu.json)
-                if mode:
-                    xbmc.log(f"[ADDON-DEBUG] Usando mode declarado: {mode} para '{title}'", xbmc.LOGINFO)
-                    addDir(title, url, mode, thumb, item_fanart, "Biblioteca: %s" % title, "", "", "", True)
-                    continue
+            except:
+                continue
 
-                # se url é JSON remoto: tenta inferir mode
-                inferred_mode = None
-                inferred_payload = None
-                if isinstance(url, str) and url.lower().endswith(".json"):
-                    inferred_mode, inferred_payload = _guess_mode_from_json_url(url)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
-                # se inferiu séries → faz addDir com mode=200 (default.py tratará)
-                if inferred_mode == 200:
-                    xbmc.log(f"[ADDON-DEBUG] Inferred SERIES for '{title}' → adicionando menu com mode=200", xbmc.LOGINFO)
-                    addDir(title, url, 200, thumb, item_fanart, "Biblioteca: %s" % title, "", "", "", True)
-                    continue
-
-                # se inferiu filmes/items → mode=101
-                if inferred_mode == 101:
-                    xbmc.log(f"[ADDON-DEBUG] Inferred FILMES/ITEMS for '{title}' → adicionando menu com mode=101", xbmc.LOGINFO)
-                    addDir(title, url, 101, thumb, item_fanart, "Biblioteca: %s" % title, "", "", "", True)
-                    continue
-
-                # se o JSON remoto era um menu (ex: 'menu' key) ou não conseguiu inferir:
-                # adiciona menu simples (o clique vai para getDataFromJson que tratará corretamente)
-                xbmc.log(f"[ADDON-DEBUG] Não foi possível inferir mode para '{title}' → fallback mode=100 (menu simples)", xbmc.LOGINFO)
-                addDir(title, url, 100, thumb, item_fanart, "Biblioteca: %s" % title, "", "", "", True)
-
-            except Exception as e_item:
-                xbmc.log(f"[ADDON-ERROR] Erro ao processar item em getMainMenus: {e_item}", xbmc.LOGERROR)
-
-        xbmcplugin.endOfDirectory(int(sys.argv[1]))
-        xbmc.log("[ADDON-DEBUG] getMainMenus finalizado com sucesso", xbmc.LOGINFO)
-
-    except Exception as e:
-        xbmc.log(f"[ADDON-ERROR] Erro em getMainMenus: {e}", xbmc.LOGERROR)
-        xbmcgui.Dialog().notification(addon_name, "Erro ao criar menus", icon, 5000, False)
+    except:
+        pass
         
         
-def getDataFromJson(json_data, fanart):          
-    xbmc.log('[ADDON-DEBUG] getDataFromJson iniciado', xbmc.LOGINFO)          
-    xbmc.log("[ADDON-DEBUG] getDataFromJson chamado - Itens recebidos: %s" % (str(len(json_data) if isinstance(json_data, list) else type(json_data))), xbmc.LOGINFO)          
+def getDataFromJson(json_data, fanart):
+    """
+    🔥 SUPREME REFACTOR v2 — Enriquecimento completo rápido
+    - Lê JSON ou Base64
+    - Usa cache em disco por filme
+    - Só faz TMDB fetch quando necessário
+    - Evita I/O pesado dentro do loop
+    - Logs reduzidos para performance
+    """
 
-    """          
-    Monta um menu a partir de um objeto JSON (lista ou dict com chave 'items'/'channels').          
-    Esta versão:          
-     - tenta usar TMDB se houver 'tmdb'/'tmdb_id'          
-     - nunca pula silenciosamente um item (tenta fallback básico)          
-     - preenche infoLabels e art completos          
-     - adiciona elenco com fotos quando disponível          
-     - adiciona diretor, roteirista, país e classificação indicativa          
-     - traduz título e descrição se possível          
-     - cria cache individual de filmes          
-     - redireciona automaticamente para buildLibraryMenus          
-    """          
+    import xbmc
+    import json
 
-    # --- 🔹 Garantir imports necessários ---    
     try:
-        import os, json as _json
-        import xbmcaddon, xbmcgui, xbmcplugin
-        from xbmcvfs import translatePath as TRANSLATEPATH
-        from resources.lib import tmdb_helper
-    except Exception as e:
-        xbmc.log(f"[ADDON-ERROR] Falha ao importar módulos base: {e}", xbmc.LOGERROR)
-        try:
-            tmdb_helper
-        except NameError:
-            tmdb_helper = None
-    # --- 🔹 Fim dos imports de segurança ---
-
-    # 🧠 SUPREME: detectar e decodificar JSON codificado em base64
-    try:
-        import base64
-        if isinstance(json_data, str) and not json_data.strip().startswith(("[", "{")):
-            xbmc.log("[SUPREME][FLOW] json_data parece codificado — tentando Base64 decode", xbmc.LOGINFO)
-            pad = '=' * ((4 - len(json_data) % 4) % 4)
-            decoded = base64.urlsafe_b64decode(json_data + pad).decode("utf-8")
-            if decoded.startswith(("[", "{")):
-                json_data = decoded
-                xbmc.log(f"[SUPREME][FLOW] JSON decodificado com sucesso (len={len(decoded)})", xbmc.LOGINFO)
-    except Exception as e_b64:
-        xbmc.log(f"[SUPREME][FLOW] falha ao decodificar Base64: {e_b64}", xbmc.LOGDEBUG)
-
-    # --- 🆕 CORREÇÃO: Converter string JSON em objeto Python ---    
-    import json    
-    try:    
-        if isinstance(json_data, str):    
-            xbmc.log("[ADDON-DEBUG] json_data é string → tentando converter via json.loads()", xbmc.LOGINFO)    
-            json_data = json.loads(json_data)    
-    except Exception as e_json:    
-        xbmc.log(f"[ADDON-ERROR] Falha ao converter JSON string: {e_json}", xbmc.LOGERROR)    
-    # --- 🆕 FIM CORREÇÃO ---    
-
-    # normaliza items          
-    try:          
-        if isinstance(json_data, list):          
-            items = json_data          
-        elif isinstance(json_data, dict):          
-            if 'items' in json_data:          
-                items = json_data['items']          
-            elif 'channels' in json_data:          
-                items = json_data['channels']          
-            else:          
-                items = list(json_data.values())          
-        else:          
-            items = []          
-    except Exception as e:          
-        xbmc.log("[ADDON-ERROR] Falha ao normalizar JSON: %s" % str(e), xbmc.LOGERROR)          
-        items = []          
-
-    # --- 🆕 BLOCO NOVO: Preparar diretório de cache para filmes ---
-    try:
-        import os, json as _json, xbmcaddon, xbmcvfs
-        TRANSLATEPATH = xbmcvfs.translatePath  # ✅ Compatível com Android e Kodi 20+
-        addon_local = xbmcaddon.Addon()
-        profile_local = TRANSLATEPATH(addon_local.getAddonInfo('profile'))
-        cache_movies_dir = os.path.join(profile_local, "cache", "movies")
-        os.makedirs(cache_movies_dir, exist_ok=True)
-        xbmc.log(f"[ADDON-DEBUG][CACHE] Pasta de cache de filmes: {cache_movies_dir}", xbmc.LOGINFO)
-    except Exception as e_cache_dir:
-        xbmc.log(f"[ADDON-ERROR][CACHE] Falha ao preparar cache de filmes: {e_cache_dir}", xbmc.LOGERROR)
-    # --- 🆕 FIM BLOCO NOVO ---
-
-    for item in items:          
-        xbmc.log('[ADDON-DEBUG] Processando novo item JSON', xbmc.LOGINFO)          
-        try:          
-            title = item.get('title') or item.get('name') or 'Sem título'          
-            url = item.get('url') or item.get('link') or ''          
-            thumbnail = item.get('thumbnail') or item.get('thumb') or ''          
-            item_fanart = item.get('fanart') or fanart or ''          
-            isFolder = bool(item.get('isFolder') or item.get('folder') or item.get('type') == 'folder')          
-            desc = item.get('description') or item.get('plot') or item.get('info') or ''          
-            genre = item.get('genre') or item.get('genres') or ''          
-            date = item.get('date') or item.get('release_date') or ''          
-          
-            tmdb_id = item.get('tmdb') or item.get('tmdb_id')          
-            media_type = "movie"  # 🆕 Forçado apenas para filmes    
-            meta = None          
-
-            # --- 🆕 BLOCO NOVO: Cache individual de filme ---
-            if tmdb_id:
-                try:
-                    cache_path = os.path.join(cache_movies_dir, f"movie_{tmdb_id}.json")
-                    if os.path.exists(cache_path):
-                        with open(cache_path, "r", encoding="utf-8") as cf:
-                            meta = _json.load(cf)
-                        xbmc.log(f"[ADDON-DEBUG][CACHE] Usando cache existente para TMDB {tmdb_id}", xbmc.LOGINFO)
-                    else:
-                        from resources.lib import tmdb_helper
-                        meta = tmdb_helper.fetch_tmdb_movie(str(tmdb_id))
-                        if meta:
-                            with open(cache_path, "w", encoding="utf-8") as cf:
-                                _json.dump(meta, cf, ensure_ascii=False, indent=2)
-                            xbmc.log(f"[ADDON-DEBUG][CACHE] Cache salvo: {cache_path}", xbmc.LOGINFO)
-                except Exception as e_cache_item:
-                    xbmc.log(f"[ADDON-ERROR][CACHE] Falha ao lidar com cache do filme {tmdb_id}: {e_cache_item}", xbmc.LOGERROR)
-            # --- 🆕 FIM BLOCO NOVO ---
-
-            liz = xbmcgui.ListItem(title)          
-            poster_final = thumbnail          
-
-            if meta:          
-                try:          
-                    poster_path = meta.get('poster_path') or meta.get('poster') or meta.get('poster_url')          
-                    backdrop_path = meta.get('backdrop_path') or meta.get('backdrop') or meta.get('fanart')          
-
-                    if poster_path:          
-                        if not poster_path.startswith('http'):          
-                            poster_path = "https://image.tmdb.org/t/p/w500" + poster_path          
-                        poster_final = poster_path          
-                    if backdrop_path:          
-                        if not backdrop_path.startswith('http'):          
-                            backdrop_path = "https://image.tmdb.org/t/p/original" + backdrop_path          
-                        item_fanart = backdrop_path          
-
-                    if hasattr(tmdb_helper, "translate_title"):          
-                        title = tmdb_helper.translate_title(meta)          
-                        liz.setLabel(title)          
-                    if not desc:          
-                        desc = meta.get("overview") or meta.get("description") or desc          
-
-                    if not genre:          
-                        if isinstance(meta.get('genres'), list):          
-                            genre = ', '.join([g.get('name') for g in meta.get('genres') if isinstance(g, dict)])          
-                    if not date:          
-                        date = meta.get('release_date') or meta.get('first_air_date') or date          
-                except Exception as e_meta_map:          
-                    xbmc.log("[ADDON-ERROR] Erro ao mapear meta TMDB: %s" % str(e_meta_map), xbmc.LOGERROR)          
-
-            info = {          
-                "title": title,          
-                "plot": desc or "",          
-                "genre": genre or "",          
-                "year": (date[:4] if date else ""),          
-                "premiered": date or "",          
-            }          
-
-            if meta:          
-                try:          
-                    info['originaltitle'] = meta.get('original_title') or info.get('originaltitle', '')          
-                    info['studio'] = ''    
-                    if meta.get('production_companies'):          
-                        info['studio'] = meta['production_companies'][0].get('name', '') if isinstance(meta['production_companies'][0], dict) else ''    
-                    info['rating'] = float(meta.get('vote_average') or 0)          
-                    info['votes'] = int(meta.get('vote_count') or 0)          
-                    info['duration'] = int(meta.get('runtime') or 0)          
-
-                    directors = [c.get("name") for c in meta.get("credits", {}).get("crew", []) if c.get("job") == "Director"]          
-                    if directors: info["director"] = ", ".join(directors)          
-
-                    writers = [c.get("name") for c in meta.get("credits", {}).get("crew", []) if c.get("job") in ["Writer", "Screenplay"]]          
-                    if writers: info["writer"] = ", ".join(writers)          
-
-                    if meta.get("production_countries"):          
-                        info["country"] = ", ".join([c.get("name") for c in meta["production_countries"] if isinstance(c, dict)])          
-
-                    # 🆕 Mapa MPAA    
-                    if meta.get("release_dates"):          
-                        for r in meta["release_dates"].get("results", []):          
-                            if r.get("iso_3166_1") in ["US", "BR"]:          
-                                for rd in r.get("release_dates", []):          
-                                    if rd.get("certification"):          
-                                        map_cert = {          
-                                            "G": "Livre",          
-                                            "L": "Livre",          
-                                            "PG": "10",          
-                                            "PG-13": "12",          
-                                            "R": "16",          
-                                            "NC-17": "18"          
-                                        }          
-                                        cert = rd["certification"]          
-                                        info["mpaa"] = map_cert.get(cert, cert)          
-                                        break          
-                except Exception as e_info:    
-                    xbmc.log(f"[ADDON-ERROR] Erro ao enriquecer info: {e_info}", xbmc.LOGERROR)    
-
-            liz.setInfo("video", info)          
-            art = {          
-                "thumb": poster_final or thumbnail or "",          
-                "poster": poster_final or thumbnail or "",          
-                "fanart": item_fanart or "",          
-            }          
-            liz.setArt(art)          
-
-            cast_list = []          
-            try:          
-                if meta and isinstance(meta.get('credits'), dict):          
-                    for c in meta['credits'].get('cast', [])[:12]:          
-                        name_c = c.get('name') or ''          
-                        role_c = c.get('character') or ''          
-                        profile = c.get('profile_path') or ''          
-                        if name_c:          
-                            cast_list.append({
-                                "name": name_c,
-                                "role": role_c,
-                                "thumbanil": f"https://image.tmdb.org/t/p/w300{profile}" if profile else ""
-                            })          
-            except Exception as e_cast_build:          
-                xbmc.log("[ADDON-ERROR] Erro ao montar elenco: %s" % str(e_cast_build), xbmc.LOGERROR)          
-
-            if cast_list:          
-                try:          
-                    liz.setCast(cast_list)          
-                except Exception as e_setcast:          
-                    xbmc.log("[ADDON-ERROR] Erro ao definir elenco no ListItem: %s" % str(e_setcast), xbmc.LOGERROR)          
-
-            try:
-                xbmc.log(f"[ADDON-DEBUG][CACHE-ONLY] Filme '{title}' processado e armazenado (sem exibição imediata)", xbmc.LOGINFO)
-            except Exception as e_add:
-                xbmc.log("[ADDON-ERROR] Erro ao adicionar item ao Kodi (desativado para cache-only): %s" % str(e_add), xbmc.LOGERROR)
-
-        except Exception as e_item:
-            xbmc.log('[ADDON-ERROR] Erro no item JSON: %s - %s' % (repr(item), str(e_item)), xbmc.LOGERROR)
-            xbmc.log("[ADDON-ERROR] Erro ao processar item JSON: %s - %s" % (repr(item), str(e_item)), xbmc.LOGERROR)
-    
-    # --- 🆕 AUTO-REDIRECIONAMENTO PARA BUILD LIBRARY MENUS ---
-    try:
-        xbmc.log("[ADDON-DEBUG] Finalizando enriquecimento → redirecionando para buildLibraryMenus_supreme", xbmc.LOGINFO)
-
         from resources.lib.Menus import buildLibraryMenus_supreme
-        import json, base64
-
-        items_sanitized = [i for i in items if isinstance(i, dict)]
-        payload_str = json.dumps(items_sanitized, ensure_ascii=False)
-        payload_b64 = base64.urlsafe_b64encode(payload_str.encode("utf-8")).decode("utf-8")
-
-        xbmc.log(f"[SUPREME][FLOW] Payload codificado Base64 len={len(payload_b64)}", xbmc.LOGINFO)
-
-        buildLibraryMenus_supreme(payload_b64, fanart)
-        return True
-    except Exception as e_redirect:
-        xbmc.log(f"[ADDON-ERROR] Erro ao redirecionar para buildLibraryMenus_supreme: {e_redirect}", xbmc.LOGERROR)
+        import xbmcgui
+    except Exception as e:
+        xbmc.log(f"[SUPREME][ERROR] Falha ao importar builder: {e}", xbmc.LOGERROR)
         return False
 
-    xbmc.log("[ADDON-DEBUG] endOfDirectory chamado", xbmc.LOGINFO)
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    xbmc.log("[SUPREME][FLOW] getDataFromJson iniciado", xbmc.LOGDEBUG)
+
+    # --- Decode inteligente (JSON ou Base64) ---
+    try:
+        if isinstance(json_data, str):
+            data_str = json_data.strip()
+
+            # detect Base64
+            if not data_str.startswith(("{", "[")):
+                import base64
+                pad = "=" * ((4 - len(data_str) % 4) % 4)
+                try:
+                    decoded = base64.urlsafe_b64decode(data_str + pad).decode("utf-8")
+                    if decoded.startswith(("{", "[")):
+                        data_str = decoded
+                except Exception:
+                    pass
+
+            json_data = json.loads(data_str)
+
+    except Exception as e:
+        xbmc.log(f"[SUPREME][ERROR] JSON inválido: {e}", xbmc.LOGERROR)
+        return False
+
+    # --- Normaliza itens ---
+    if isinstance(json_data, list):
+        items = json_data
+    elif isinstance(json_data, dict):
+        items = json_data.get("items") or json_data.get("channels") or list(json_data.values())
+    else:
+        items = []
+
+    if not items:
+        xbmc.log("[SUPREME][FLOW] Nenhum item encontrado", xbmc.LOGWARNING)
+        return False
+
+    xbmc.log(f"[SUPREME][FLOW] {len(items)} itens recebidos para menu", xbmc.LOGDEBUG)
+
+    # --- Preparar cache de filmes ---
+    try:
+        import os, xbmcvfs, xbmcaddon
+        TRANSLATEPATH = xbmcvfs.translatePath
+        addon_local = xbmcaddon.Addon()
+        profile_local = TRANSLATEPATH(addon_local.getAddonInfo("profile"))
+        cache_movies_dir = os.path.join(profile_local, "cache", "movies")
+        os.makedirs(cache_movies_dir, exist_ok=True)
+    except Exception as e:
+        xbmc.log(f"[SUPREME][CACHE] Falha em criar cache de filmes: {e}", xbmc.LOGERROR)
+        cache_movies_dir = None
+
+    # Pré-carrega nomes de arquivos de cache
+    existing_cache_files = set()
+    if cache_movies_dir:
+        try:
+            existing_cache_files = set(os.listdir(cache_movies_dir))
+        except Exception:
+            existing_cache_files = set()
+
+    enriched_items = []
+    missing_tmdb = []
+
+    # --- Loop para enriquecer itens ---
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+
+        title = item.get('title') or item.get('name') or 'Sem título'
+        tmdb_id = item.get('tmdb') or item.get('tmdb_id')
+        media_type = item.get('tmdb_type') or item.get('type') or "movie"
+        meta = None
+
+        # --- Carrega cache se existir ---
+        if tmdb_id and cache_movies_dir:
+            cache_filename = f"{media_type}_{tmdb_id}.json"
+            if cache_filename in existing_cache_files:
+                try:
+                    with open(os.path.join(cache_movies_dir, cache_filename), "r", encoding="utf-8") as f:
+                        meta = json.load(f)
+                except Exception:
+                    meta = None
+
+        # --- Buscar TMDB se cache não existir ---
+        if tmdb_id and not meta:
+            missing_tmdb.append((item, media_type, tmdb_id))
+            enriched_items.append((item, None))
+            continue
+
+        enriched_items.append((item, meta))
+
+    # --- Fazendo TMDB fetch para todos itens faltantes em lote ---
+    if missing_tmdb:
+        from resources.lib import tmdb_helper
+
+        for (item, media_type, tmdb_id) in missing_tmdb:
+            try:
+                meta = tmdb_helper.fetch_tmdb_movie(str(tmdb_id)) if media_type.lower() == "movie" else tmdb_helper.fetch_tmdb(str(tmdb_id))
+                if meta and cache_movies_dir:
+                    try:
+                        with open(os.path.join(cache_movies_dir, f"{media_type}_{tmdb_id}.json"), "w", encoding="utf-8") as cf:
+                            json.dump(meta, cf, ensure_ascii=False, indent=2)
+                    except Exception:
+                        pass
+                enriched_items.append((item, meta))
+            except Exception:
+                enriched_items.append((item, None))
+
+    # --- Construir dados finais para o builder ---
+    final_list = []
+
+    for (item, meta) in enriched_items:
+        try:
+            # --- Preparar ListItem base ---
+            processed = item.copy()
+
+            # --- Mapear TMDB meta se existir ---
+            if meta:
+                try:
+                    poster_path = meta.get("poster_path")
+                    backdrop_path = meta.get("backdrop_path")
+
+                    if poster_path:
+                        processed["poster"] = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                    if backdrop_path:
+                        processed["fanart"] = f"https://image.tmdb.org/t/p/original{backdrop_path}"
+
+                    # Copiar campos essenciais
+                    processed.setdefault("overview", meta.get("overview"))
+                    processed.setdefault("genres", meta.get("genres"))
+                    processed.setdefault("release_date", processed.get("date") or meta.get("release_date"))
+                    processed.setdefault("rating", meta.get("vote_average"))
+                    processed.setdefault("votes", meta.get("vote_count"))
+                except Exception:
+                    pass
+
+            final_list.append(processed)
+
+        except Exception as e_item:
+            xbmc.log(f"[SUPREME][CACHE] Erro ao processar item meta: {e_item}", xbmc.LOGERROR)
+
+    xbmc.log(f"[SUPREME][FLOW] Itens prontos: {len(final_list)} — chamando builder", xbmc.LOGDEBUG)
+
+    # --- Chama o builder final ---
+    try:
+        # Usa lista pura, sem base64 pesado
+        return buildLibraryMenus_supreme(final_list, fanart)
+    except Exception as e_builder:
+        xbmc.log(f"[SUPREME][ERROR] Falha no builder: {e_builder}", xbmc.LOGERROR)
+        return False
     
     
 import sys, urllib.parse, xbmc, base64, json
