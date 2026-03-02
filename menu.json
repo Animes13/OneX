@@ -1,27 +1,27 @@
 [
   {
     "title": "TV ao Vivo",
-    "url": "https://docs.google.com/uc?export=download&id=1gRSar0Iy2oGepL3LkMtCbwTzgSghAsw6",
-    "mode": 500
+    "type": "iptv",
+    "url": "https://docs.google.com/uc?export=download&id=1gRSar0Iy2oGepL3LkMtCbwTzgSghAsw6"
   },
   {
     "title": "Filmes",
-    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Filmes.json",
-    "mode": 100
+    "type": "library",
+    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Filmes.json"
   },
   {
     "title": "Séries",
-    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Series.json",
-    "mode": 100
+    "type": "library",
+    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Series.json"
   },
   {
     "title": "Animes",
-    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Animes.json",
-    "mode": 300
+    "type": "library",
+    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Animes.json"
   },
   {
     "title": "Documentários",
-    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Documentarios.json",
-    "mode": 100
+    "type": "library",
+    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Documentarios.json"
   }
 ]
