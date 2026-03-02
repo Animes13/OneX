@@ -1,5 +1,10 @@
 [
   {
+  "title": "TV ao Vivo",
+  "url": "https://docs.google.com/uc?export=download&id=1gRSar0Iy2oGepL3LkMtCbwTzgSghAsw6",
+  "mode": 500
+  },
+  {
     "title": "Filmes",
     "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Filmes.json",
     "mode": 100
