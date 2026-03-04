@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "type": "movie",
+      "title": "Night of the Living Dead (TESTE)",
+      "tmdb": 10331,
+      "stream": "https://ia801308.us.archive.org/33/items/Night_of_the_Living_Dead_AVI/MoviePowderPresentsTheNightOfTheLivingDead_512kb.mp4"
+    },
+    {
+      "type": "tv",
+      "title": "Game of Thrones (TESTE - streams fake)",
+      "tmdb": 1399,
+      "seasons": [
+        {
+          "tmdb_season": 1,
+          "episodes": [
+            {
+              "tmdb_episode": 1,
+              "stream": "https://ia801308.us.archive.org/33/items/Night_of_the_Living_Dead_AVI/MoviePowderPresentsTheNightOfTheLivingDead_512kb.mp4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
