@@ -1,27 +1,36 @@
-[
-  {
-    "title": "TV ao Vivo",
-    "type": "iptv",
-    "url": "https://docs.google.com/uc?export=download&id=1gRSar0Iy2oGepL3LkMtCbwTzgSghAsw6"
-  },
-  {
-    "title": "Filmes",
-    "type": "library",
-    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Filmes.json"
-  },
-  {
-    "title": "Séries",
-    "type": "library",
-    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Series.json"
-  },
-  {
-    "title": "Animes",
-    "type": "library",
-    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Animes.json"
-  },
-  {
-    "title": "Documentários",
-    "type": "library",
-    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Documentarios.json"
-  }
-]
+{
+  "menu": [
+    {
+      "title": "🎬 Filmes",
+      "plot": "Lista de filmes do catálogo JSON",
+      "icon": "https://i.imgur.com/7QpZyV7.png",
+      "fanart": "https://i.imgur.com/9QnGk5F.jpeg",
+      "target": "onex://list?kind=movie"
+    },
+    {
+      "title": "📺 Séries",
+      "plot": "Lista de séries do catálogo JSON",
+      "icon": "https://i.imgur.com/YWkJQpF.png",
+      "fanart": "https://i.imgur.com/9QnGk5F.jpeg",
+      "target": "onex://list?kind=tv"
+    },
+    {
+      "title": "🔎 Buscar Filme",
+      "plot": "Busca local dentro do catálogo JSON",
+      "icon": "https://i.imgur.com/7QpZyV7.png",
+      "target": "onex://search?kind=movie"
+    },
+    {
+      "title": "🔎 Buscar Série",
+      "plot": "Busca local dentro do catálogo JSON",
+      "icon": "https://i.imgur.com/YWkJQpF.png",
+      "target": "onex://search?kind=tv"
+    },
+    {
+      "title": "📂 Submenu Exemplo",
+      "plot": "Abre outro menu JSON remoto",
+      "icon": "https://i.imgur.com/7QpZyV7.png",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/submenu.json"
+    }
+  ]
+}
