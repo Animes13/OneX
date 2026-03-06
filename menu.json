@@ -2,35 +2,18 @@
   "menu": [
     {
       "title": "🎬 Filmes",
-      "plot": "Lista de filmes do catálogo JSON",
-      "icon": "https://i.imgur.com/7QpZyV7.png",
-      "fanart": "https://i.imgur.com/9QnGk5F.jpeg",
-      "target": "onex://list?kind=movie"
+      "plot": "Abrir submenu de filmes",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/filmes.json"
     },
     {
       "title": "📺 Séries",
-      "plot": "Lista de séries do catálogo JSON",
-      "icon": "https://i.imgur.com/YWkJQpF.png",
-      "fanart": "https://i.imgur.com/9QnGk5F.jpeg",
-      "target": "onex://list?kind=tv"
+      "plot": "Abrir submenu de séries",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/series.json"
     },
     {
-      "title": "🔎 Buscar Filme",
-      "plot": "Busca local dentro do catálogo JSON",
-      "icon": "https://i.imgur.com/7QpZyV7.png",
-      "target": "onex://search?kind=movie"
-    },
-    {
-      "title": "🔎 Buscar Série",
-      "plot": "Busca local dentro do catálogo JSON",
-      "icon": "https://i.imgur.com/YWkJQpF.png",
-      "target": "onex://search?kind=tv"
-    },
-    {
-      "title": "📂 Submenu Exemplo",
-      "plot": "Abre outro menu JSON remoto",
-      "icon": "https://i.imgur.com/7QpZyV7.png",
-      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/submenu.json"
+      "title": "📚 Biblioteca",
+      "plot": "Abrir submenu da biblioteca",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/biblioteca.json"
     }
   ]
 }

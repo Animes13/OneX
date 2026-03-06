@@ -1,0 +1,16 @@
+{
+  "menu": [
+    {
+      "title": "🔥 Ação",
+      "target": "onex://filter?kind=movie&genre=28"
+    },
+    {
+      "title": "😂 Comédia",
+      "target": "onex://filter?kind=movie&genre=35"
+    },
+    {
+      "title": "📅 Filmes de 2024",
+      "target": "onex://filter?kind=movie&year=2024"
+    }
+  ]
+}

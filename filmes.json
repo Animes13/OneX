@@ -1,0 +1,20 @@
+{
+  "menu": [
+    {
+      "title": "🎬 Todos os Filmes",
+      "target": "onex://list?kind=movie"
+    },
+    {
+      "title": "🔎 Buscar Filmes",
+      "target": "onex://search?kind=movie"
+    },
+    {
+      "title": "🎯 Filtros",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/filtros_filmes.json"
+    },
+    {
+      "title": "↕️ Ordenar",
+      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/sort_filmes.json"
+    }
+  ]
+}
