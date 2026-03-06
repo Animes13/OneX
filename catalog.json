@@ -2,21 +2,47 @@
   "items": [
     {
       "type": "movie",
-      "title": "Night of the Living Dead (TESTE)",
-      "tmdb": 10331,
-      "stream": "https://ia801308.us.archive.org/33/items/Night_of_the_Living_Dead_AVI/MoviePowderPresentsTheNightOfTheLivingDead_512kb.mp4"
+      "tmdb": 603,
+      "title": "The Matrix",
+      "stream": "https://seuservidor.com/filmes/the-matrix.m3u8"
+    },
+    {
+      "type": "movie",
+      "tmdb": 155,
+      "title": "The Dark Knight",
+      "stream": "https://seuservidor.com/filmes/the-dark-knight.m3u8"
     },
     {
       "type": "tv",
-      "title": "Game of Thrones (TESTE - streams fake)",
       "tmdb": 1399,
+      "title": "Game of Thrones",
       "seasons": [
         {
           "tmdb_season": 1,
           "episodes": [
             {
               "tmdb_episode": 1,
-              "stream": "https://ia801308.us.archive.org/33/items/Night_of_the_Living_Dead_AVI/MoviePowderPresentsTheNightOfTheLivingDead_512kb.mp4"
+              "stream": "https://seuservidor.com/series/got/s01e01.m3u8"
+            },
+            {
+              "tmdb_episode": 2,
+              "stream": "https://seuservidor.com/series/got/s01e02.m3u8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tv",
+      "tmdb": 100088,
+      "title": "The Last of Us",
+      "seasons": [
+        {
+          "tmdb_season": 1,
+          "episodes": [
+            {
+              "tmdb_episode": 1,
+              "stream": "https://seuservidor.com/series/tlou/s01e01.m3u8"
             }
           ]
         }
