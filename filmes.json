@@ -9,12 +9,20 @@
       "target": "onex://search?kind=movie"
     },
     {
-      "title": "🎯 Filtros",
-      "target": "https://github.com/Animes13/OneX/raw/refs/heads/main/filtros_filmes.json"
+      "title": "🎭 Por Gênero",
+      "target": "onex://auto?kind=movie&field=genre"
     },
     {
-      "title": "↕️ Ordenar",
-      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/sort_filmes.json"
+      "title": "📅 Por Ano",
+      "target": "onex://auto?kind=movie&field=year"
+    },
+    {
+      "title": "🏭 Por Estúdio",
+      "target": "onex://auto?kind=movie&field=studio"
+    },
+    {
+      "title": "🌍 Por País",
+      "target": "onex://auto?kind=movie&field=country"
     }
   ]
 }
