@@ -1,19 +1,27 @@
-{
-  "menu": [
-    {
-      "title": "🎬 Filmes",
-      "plot": "Abrir submenu de filmes",
-      "target": "https://github.com/Animes13/OneX/raw/refs/heads/main/filmes.json"
-    },
-    {
-      "title": "📺 Séries",
-      "plot": "Abrir submenu de séries",
-      "target": "https://github.com/Animes13/OneX/raw/refs/heads/main/Series.json"
-    },
-    {
-      "title": "📚 Biblioteca",
-      "plot": "Abrir submenu da biblioteca",
-      "target": "https://raw.githubusercontent.com/SEUUSER/SEUREPO/main/menus/biblioteca.json"
-    }
-  ]
-}
+[
+  {
+    "title": "TV ao Vivo",
+    "type": "iptv",
+    "url": "https://docs.google.com/uc?export=download&id=1gRSar0Iy2oGepL3LkMtCbwTzgSghAsw6"
+  },
+  {
+    "title": "Filmes",
+    "type": "library",
+    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Filmes.json"
+  },
+  {
+    "title": "Séries",
+    "type": "library",
+    "url": "https://github.com/Animes13/OneX/raw/refs/heads/main/Series.json"
+  },
+  {
+    "title": "Animes",
+    "type": "library",
+    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Animes.json"
+  },
+  {
+    "title": "Documentários",
+    "type": "library",
+    "url": "https://raw.githubusercontent.com/OneX35/OneX/main/Documentarios.json"
+  }
+]
